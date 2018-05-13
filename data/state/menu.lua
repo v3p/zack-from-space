@@ -86,7 +86,7 @@ function menu:loadOptions()
 	end
 	local data = {selected = settings.screen.resolution, items = items, x = math.floor(settings.screen.width * 0.5), y = math.floor(settings.screen.height * 0.2)}
 	local d = mergeTable(data, self.listboxData)
-	self.controllers = gui:new("data/class/gui/listbox.lua", d)	
+	self.resolution = gui:new("data/class/gui/listbox.lua", d)	
 
 	--Fullscreen
 	local data = {text = "FULLSCREEN", checked = settings.screen.fullscreen, x = math.floor(settings.screen.width * 0.5), y = math.floor(settings.screen.height * 0.51)}
@@ -222,6 +222,11 @@ function menu.buttonPress(button)
 		settings.screen.height = RESOLUTIONS[settings.screen.resolution].height
 		settings.screen.fullscreen = menu.fullscreen.data.checked
 		settings.screen.vsync = menu.vsync.data.checked
+
+		--Fixing for fullscreen
+		if settings.screen.fullscreen then
+			settings.screen.resolution = #RESOLUTIONS
+		end
 
 
 		applySettings()

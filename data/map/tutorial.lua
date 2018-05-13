@@ -8,7 +8,7 @@ return {
   height = 13,
   tilewidth = 16,
   tileheight = 16,
-  nextobjectid = 42,
+  nextobjectid = 43,
   properties = {
     ["levelName"] = "Tutorial"
   },
@@ -146,8 +146,8 @@ return {
           name = "",
           type = "teleportPortal",
           shape = "rectangle",
-          x = 208,
-          y = 176,
+          x = 207.368,
+          y = 176.316,
           width = 16,
           height = 16,
           rotation = 0,
