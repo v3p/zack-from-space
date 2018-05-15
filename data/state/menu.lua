@@ -1,6 +1,8 @@
 local menu = {}
 
-function menu:load()
+function menu:load(data)
+	data = data or {}
+
 	self.buttonData = {
 		width = math.floor(settings.screen.width * 0.3),
 		height = math.floor(settings.screen.height * 0.1),
@@ -35,7 +37,11 @@ function menu:load()
 		scroll = 0
 	}
 
-	self:loadMain()
+	if data.screen == "start" then
+		self:loadStart()
+	else
+		self:loadMain()
+	end
 end
 
 function menu:loadMain()
@@ -235,9 +241,11 @@ function menu.buttonPress(button)
 		menu:load()
 		menu:loadOptions()
 	elseif button.data.text == "PLAY" then
-		local level = menu.level.data.items[menu.level.data.selected].value
-		state:setState("game")
-		state:load({level = level})
+		if menu.level.data.selected > 0 then
+			local level = menu.level.data.items[menu.level.data.selected].value
+			state:setState("game")
+			state:load({level = level})
+		end
 	end
 end
 

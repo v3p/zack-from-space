@@ -3,7 +3,7 @@
 local physics = {}
 
 function physics:load()
-	self.gravity = (settings.screen.height) * 5
+	self.gravity = (settings.screen.height) * 4.3
 	self.friction = 10
 	self.maxVelocity = (settings.screen.height) * 10
 
@@ -26,7 +26,7 @@ function physics:createWorld(map)
 			local t = map.layer["tile"][y][x]
 			if t then
 				t.type = "tile"
-				if t.tile <= 9 then
+				if t.tile <= 10 then
 					self.world:add(t, t.x, t.y, TILE_SIZE, TILE_SIZE)
 				elseif t.tile == 15 then
 					local height = math.floor(TILE_SIZE / 2)

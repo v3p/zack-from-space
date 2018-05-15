@@ -3,6 +3,8 @@ local player = {}
 function player:load(data)
 	self.type = "player"
 
+	self.god = false
+
 	self.x = data.x
 	self.y = data.y
 	self.width = math.floor(TILE_SIZE / 2.5)
@@ -11,8 +13,8 @@ function player:load(data)
 	self.yVel = 0
 
 	--MOVEMENT VARIABLES
-	self.jumpHeight = (settings.screen.height) * 1.6
-	self.moveSpeed = (settings.screen.width ) * 0.5
+	self.jumpHeight = (settings.screen.height) * 1.3
+	self.moveSpeed = (settings.screen.height ) * 0.6
 	--Acceleration
 	self.groundAcceleration = (settings.screen.width + settings.screen.height) * 2
 	self.airAcceleration = (settings.screen.width + settings.screen.height) * 0.9
@@ -28,6 +30,10 @@ function player:load(data)
 
 	--Jumping stuff
 	self.canJump = true
+	self.jumpTimeout = 0.1
+	self.jumpTick = 0
+	self.touched = false
+
 	self.isWallJump = false
 	self.wallJumpDirection = "right"
 
@@ -56,6 +62,13 @@ function player:load(data)
 end
 
 function player:update(dt)
+	if self.jumpTick > 0 then
+		self.jumpTick = self.jumpTick - dt
+		if self.jumpTick <= 0 then
+			self.canJump = false
+		end
+	end
+
 	self.alpha = self.alpha + (self.targetAlpha - self.alpha) * 16 * dt
 	if self.state == "idle" then
 		self.animation.run:stop()
@@ -89,7 +102,7 @@ function player:draw()
 	if self.runDirection == "left" then
 		sx = -(TILE_SIZE / ASSET_SIZE)
 	end
-	self.animation["run"]:draw(self.x + (TILE_SIZE / 4.5), self.y, sx, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
+	self.animation["run"]:draw(self.x + (TILE_SIZE / 4.4), self.y, sx, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
 end
 
 function player:teleport(x, y, portal)
@@ -113,6 +126,7 @@ end
 
 function player:jump(height)
 	if self.canJump then
+		self.canJump = false
 		height = height or self.jumpHeight
 		self.yVel = -self.jumpHeight
 		if self.isWallJump then
@@ -169,12 +183,14 @@ end
 --Collision
 
 function player:handleCollision(collision)
+	local touch = false
 	if collision then
 		if collision.type == "slide" then
 			if self.ability.wallJumpCount < self.ability.wallJumpLimit then self.canJump = true end
 
 			if collision.normal.y == -1 then
 				self.canJump = true
+				self.touched = false
 				self.ability.wallJumpCount = 0
 				if self.xVel == 0 then
 					self.state = "idle"
@@ -183,11 +199,14 @@ function player:handleCollision(collision)
 				elseif self.xVel > 0 then
 					self.state = "runRight"
 				end
+			elseif collision.normal.y == 1 then
+				self.canJump = false
 			end
 
 			--Wall jump
 			if collision.normal.x ~= 0 then
 				self.isWallJump = true
+				self.touched = false
 				self.xVel = 0
 				if collision.normal.x == -1 then
 					self.wallJumpDirection = "right"
@@ -200,14 +219,16 @@ function player:handleCollision(collision)
 
 			--Death spikes
 			if collision.other.tile == 15 then
-				state:getState():die()
+				if not self.god then
+					state:getState():die()
+				end
 			end
 		elseif collision.type == "cross" then
 			if collision.other.type == "teleportPortal" then
 				if not collision.other.teleported then
 					if collision.other.endLevel then
 						state:setState("menu")
-						state:load()
+						state:load({screen = "start"})
 						screenEffect:flash()
 					else
 						self:teleport(collision.other.destinationX, collision.other.destinationY, collision.other)
@@ -226,7 +247,10 @@ function player:handleCollision(collision)
 		end
 	else
 		self.state = "falling"
-		self.canJump = false
+		if not self.touched then
+			self.jumpTick = self.jumpTimeout
+			self.touched = true
+		end
 	end
 end
 

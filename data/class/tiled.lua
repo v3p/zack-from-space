@@ -37,13 +37,6 @@ function tiled.loadMap(path)
 					y = y + 1
 					map.layer[v.name][y] = {}
 				end
-
-				if v.name == "entity" then
-					--if b == 11 then
-					--	map.startX = x
-					--	map.startY = y
-					--end
-				end
 			end
 		elseif v.type == "objectgroup" then
 			map.object = v.objects

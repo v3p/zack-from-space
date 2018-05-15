@@ -97,7 +97,7 @@ function applySettings()
 end
 
 function resize()
-	TILE_SIZE = math.floor( settings.screen.width * 0.07)
+	TILE_SIZE = math.floor( settings.screen.height * 0.07)
 
 	FONT = {
 		DEBUG = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.02)),
@@ -113,6 +113,7 @@ function sprint(t)
 end
 
 function love.update(dt)
+	--dt = dt * 0.1
 	camera:update(dt)
 	timer:update(dt)
 	state:update(dt)
