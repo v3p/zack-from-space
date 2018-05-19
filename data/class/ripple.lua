@@ -14,7 +14,7 @@ function ripple:new(x, y, time, radius, color)
 		cRadius = 0,
 		alpha = 1,
 		color = color,
-		light = light:new(x, y, TILE_SIZE * 8, color)
+		light = light:new(x, y, TILE_SIZE * 16, color)
 	}
 end
 

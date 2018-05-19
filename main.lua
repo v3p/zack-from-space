@@ -10,6 +10,7 @@ function love.load()
 		sky = {0, 0, 0},--{0.223, 0.313, 0.45},
 		dark = {0.129, 0.141, 0.164},
 		white = {0.9, 0.9, 0.9},
+		grey = {0.6, 0.6, 0.6},
 		red = {0.9, 0.1, 0.1},
 		green = {0.258, 0.956, 0.56},
 		blue = normalColor(53, 176, 242, 255),
@@ -136,7 +137,7 @@ function resize()
 
 	checkBoxData = {
 		font = FONT.medium,
-		color = COLOR.dark,
+		color = COLOR.white,
 		height = math.floor(settings.screen.height * 0.07),
 		interactive = true,
 		checked = false

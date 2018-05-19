@@ -13,6 +13,8 @@ function game:load(data)
 	self.coinQuads = {QUADS[28], QUADS[29], QUADS[30], QUADS[31]}
 	self.coinAnimation = animation.new(self.coinQuads, 12)
 
+	love.graphics.setBackgroundColor(COLOR.sky)
+
 	self:reset()
 end	
 
@@ -59,7 +61,7 @@ function game:reset()
 			if t then
 				if t.tile == 35 then
 					--(x, y, radius, color, follow, followOffsetX, followOffsetY, flicker)
-					light:new(t.x, t.y, TILE_SIZE * 16, COLOR.white, t, TILE_SIZE / 2, TILE_SIZE / 2, true)
+					light:new(t.x, t.y, TILE_SIZE * 16, COLOR.white, t, TILE_SIZE / 2, TILE_SIZE / 2)
 				elseif t.tile == 36 then
 					light:new(t.x, t.y, TILE_SIZE * 8, COLOR.gold, t, TILE_SIZE / 2, TILE_SIZE / 2)
 				end
@@ -146,7 +148,6 @@ function game:draw()
 		camera:push()
 
 		self:drawMap()
-		self:drawObject()
 		entity:draw()
 		ripple:draw()
 
@@ -158,6 +159,10 @@ function game:draw()
 		camera:pop()
 
 		light:draw()
+
+		camera:push()
+		self:drawObject()
+		camera:pop()
 
 		self:drawHud()
 	else

@@ -24,14 +24,14 @@ end
 
 function listbox:draw()
 	love.graphics.setColor(self.data.color)
-	love.graphics.rectangle("line", self.data.x, self.data.y, self.data.width, self.data.height)
+	love.graphics.rectangle("fill", self.data.x, self.data.y, self.data.width, self.data.height)
 
 	--Items
 	love.graphics.setFont(self.data.font)
 
 	love.graphics.setScissor(self.data.x, self.data.y, self.data.width, self.data.height)
 	for i,v in ipairs(self.data.items) do
-		love.graphics.setColor(self.data.color)
+		love.graphics.setColor(COLOR.grey)
 		if v.highlight then
 			love.graphics.setColor(COLOR.white)
 		end

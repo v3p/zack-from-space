@@ -59,9 +59,10 @@ function camera:restrictToMap(map)
 	end
 end
 
-function camera:push()
+function camera:push(multiplier)
+	multiplier = multiplier or 1
 	love.graphics.push()
-	love.graphics.translate(-math.floor(self.x), -math.floor(self.y))
+	love.graphics.translate(-math.floor(self.x) * multiplier, -math.floor(self.y) * multiplier)
 end
 
 function camera:pop()

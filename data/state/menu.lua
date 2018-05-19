@@ -2,8 +2,7 @@ local menu = {}
 
 function menu:load(data)
 	data = data or {}
-
-
+	self:generateBackground()
 	if data.screen == "start" then
 		self:loadStart()
 	else
@@ -11,10 +10,27 @@ function menu:load(data)
 	end
 end
 
+function menu:generateBackground()
+	self.background = love.graphics.newCanvas()
+	local w = math.floor(settings.screen.width / TILE_SIZE) + 1
+	local h = math.floor(settings.screen.height / TILE_SIZE) + 1
+
+	local oc = love.graphics.getCanvas()
+	love.graphics.setCanvas(self.background)
+	love.graphics.setColor(1, 1, 1, 1)
+	for y=1, h do
+		for x=1, w do
+			love.graphics.draw(ATLAS, QUADS[37], (x - 1) * TILE_SIZE, (y - 1) * TILE_SIZE, 0, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE)
+		end
+	end
+
+	love.graphics.setCanvas(oc)
+end
+
 function menu:loadMain()
 	gui:clear()
 	--Title
-	local data = {font = FONT.huge, text = GAME_NAME, x = 0, y = math.floor(settings.screen.height * 0.2), alignment = "center"}
+	local data = {color = COLOR.green, font = FONT.huge, text = GAME_NAME, x = 0, y = math.floor(settings.screen.height * 0.2), alignment = "center"}
 	local d = mergeTable(data, labelData)
 	gui:new("data/class/gui/label.lua", d)
 
@@ -138,7 +154,7 @@ function menu:loadCredits()
 	'ser.lua' by 'Robin Wellner'
 
 Fonts:
-	'Pixellari.ttf' by 'Zacchary Dempsey-Plante'
+	'cubecavern.ttf' by 'memesbruh03'
 
 Other software used:
 	Tiled, Sublime text, Pyxel edit.
@@ -160,6 +176,8 @@ function menu:update(dt)
 end
 
 function menu:draw()
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.draw(self.background)
 	gui:draw()
 end
 
@@ -205,6 +223,8 @@ function menu.buttonPress(button)
 		applySettings()
 
 		resize()
+		menu:generateBackground()
+
 		--menu:load()
 		menu:loadOptions()
 	elseif button.data.text == "PLAY" then
