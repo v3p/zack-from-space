@@ -3,6 +3,7 @@ local player = {}
 function player:load(data)
 	self.type = "player"
 
+
 	self.god = false
 
 	self.x = data.x
@@ -45,7 +46,14 @@ function player:load(data)
 
 	self.canMove = true
 
-	self.quads = {QUADS[11], QUADS[12], QUADS[13], QUADS[14]}
+	self.quads = {
+		runRight = {QUADS[16], QUADS[17], QUADS[18], QUADS[19]},
+		runLeft = {QUADS[20], QUADS[21], QUADS[22], QUADS[23]},
+		standRight = {QUADS[24], QUADS[25]},
+		standLeft = {QUADS[26], QUADS[27]},
+		fallRight = {QUADS[17]},
+		fallLeft = {QUADS[21]}
+	}
 
 	self.flags = {
 		physics = true,
@@ -57,7 +65,12 @@ function player:load(data)
 	self.targetAlpha = 1
 
 	self.animation = {
-		run = animation.new(self.quads, 12)
+		runRight = animation.new(self.quads.runRight, 12),
+		runLeft = animation.new(self.quads.runLeft, 12),
+		standRight = animation.new(self.quads.standRight, 3),
+		standLeft = animation.new(self.quads.standLeft, 3),
+		fallRight = animation.new(self.quads.fallRight, 1),
+		fallLeft = animation.new(self.quads.fallLeft, 1)
 	}
 end
 
@@ -71,13 +84,23 @@ function player:update(dt)
 
 	self.alpha = self.alpha + (self.targetAlpha - self.alpha) * 16 * dt
 	if self.state == "idle" then
-		self.animation.run:stop()
-		self.animation.run:setFrame(1)
+		if self.runDirection == "right" then
+			self.animation.standRight:start()
+		elseif self.runDirection == "left" then
+			self.animation.standLeft:start()
+		end
 	elseif self.state == "falling" then
-		self.animation.run:stop()
-		self.animation.run:setFrame(2)
+		if self.runDirection == "right" then
+			self.animation.fallRight:start()
+		elseif self.runDirection == "left" then
+			self.animation.fallLeft:start()
+		end
 	else
-		self.animation.run:start()
+		if self.runDirection == "right" then
+			self.animation.runRight:start()
+		elseif self.runDirection == "left" then
+			self.animation.runLeft:start()
+		end
 	end
 
 	--Friction and acceleration
@@ -98,11 +121,25 @@ end
 function player:draw()
 	love.graphics.setColor(1, 1, 1, self.alpha)
 	--Flipping the sprite if needed.
-	local sx = (TILE_SIZE / ASSET_SIZE)
-	if self.runDirection == "left" then
-		sx = -(TILE_SIZE / ASSET_SIZE)
+	local anim = ""
+	if self.state == "runLeft" then
+		anim = "runLeft"
+	elseif self.state == "runRight" then
+		anim = "runRight"
+	elseif self.state == "idle" then
+		if self.runDirection == "left" then
+			anim = "standLeft"
+		else
+			anim = "standRight"
+		end
+	elseif self.state == "falling" then
+		if self.runDirection == "left" then
+			anim = "fallLeft"
+		else
+			anim = "fallRight"
+		end
 	end
-	self.animation["run"]:draw(self.x + (TILE_SIZE / 4.4), self.y, sx, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
+	self.animation[anim]:draw(self.x + (TILE_SIZE / 4.4), self.y, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
 end
 
 function player:teleport(x, y, portal)
@@ -218,7 +255,7 @@ function player:handleCollision(collision)
 			end
 
 			--Death spikes
-			if collision.other.tile == 15 then
+			if collision.other.tile == 11 then
 				if not self.god then
 					state:getState():die()
 				end

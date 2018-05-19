@@ -3,7 +3,8 @@ local camera = {
 		y = 0,
 		tx = 0,
 		ty = 0,
-		smoof = 12
+		smoof = 12,
+		moving = false
 	}
 
 function camera:load(x, y)
@@ -16,6 +17,21 @@ end
 function camera:update(dt)
 	self.x = self.x + (self.tx - self.x) * self.smoof * dt
 	self.y = self.y + (self.ty - self.y) * self.smoof * dt
+	local xm, ym = true, true
+	if math.abs(self.x - self.tx) < 0.01 then
+		self.x = self.tx
+		xm = false
+	end
+	if math.abs(self.y - self.ty) < 0.01 then
+		self.y = self.ty
+		ym = false
+	end
+
+	if not xm and not ym then
+		self.moving = false
+	else
+		self.moving = true
+	end
 end
 
 function camera:restrictToMap(map)
@@ -55,10 +71,19 @@ end
 function camera:moveTo(x, y)
 	self.tx = x - (settings.screen.width / 2)
 	self.ty = y - (settings.screen.height / 2)
+	
+end
+
+function camera:isMoving()
+	return self.moving
 end
 
 function camera:getMouse()
 	return love.mouse.getX() + self.x, love.mouse.getY() + self.y
+end
+
+function camera:getScreen(x, y)
+	return x - self.x, y - self.y
 end
 
 function camera:getView(map)

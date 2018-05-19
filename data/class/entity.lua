@@ -63,7 +63,7 @@ function entity:spawnMapEntities(map)
 		for x=1, map.width do
 			e = map.layer["entity"][y][x]
 			if e then
-				if e.tile == 16 then
+				if e.tile == 28 then
 					entity:spawn("coin", {x = (x - 1) * TILE_SIZE - (TILE_SIZE / 4), y = (y - 1) * TILE_SIZE - (TILE_SIZE / 4)})
 				end
 			end
@@ -89,6 +89,7 @@ function entity:spawnMapEntities(map)
 			else
 				entity:spawn("teleportPortal", {x = v.x, y = v.y + (TILE_SIZE / 2), endLevel = true})
 			end
+
 		end
 	end
 end

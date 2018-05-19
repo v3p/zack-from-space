@@ -13,7 +13,8 @@ function ripple:new(x, y, time, radius, color)
 		radius = radius,
 		cRadius = 0,
 		alpha = 1,
-		color = color
+		color = color,
+		light = light:new(x, y, TILE_SIZE * 8, color)
 	}
 end
 
@@ -21,8 +22,10 @@ function ripple:update(dt)
 	for i,v in ipairs(self.spawned) do
 		v.cRadius = v.cRadius + (v.radius - v.cRadius) * v.time * dt
 		v.alpha = v.alpha + (0 - v.alpha) * v.time * dt
+		v.light.brightness = v.alpha
 
 		if v.alpha < 0.01 then
+			v.light.remove = true
 			table.remove(self.spawned, i)
 		end
 	end

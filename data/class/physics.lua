@@ -28,7 +28,7 @@ function physics:createWorld(map)
 				t.type = "tile"
 				if t.tile <= 10 then
 					self.world:add(t, t.x, t.y, TILE_SIZE, TILE_SIZE)
-				elseif t.tile == 15 then
+				elseif t.tile == 11 then -- Death spikes
 					local height = math.floor(TILE_SIZE / 2)
 					local y = (y - 1) * TILE_SIZE + height
 					self.world:add(t, t.x, y, TILE_SIZE, height)

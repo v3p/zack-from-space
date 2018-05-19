@@ -7,12 +7,14 @@ function love.load()
 	GAME_NAME = "Zack from space"
 	ASSET_SIZE = 16
 	COLOR = {
-		sky = {0.223, 0.313, 0.45},
+		sky = {0, 0, 0},--{0.223, 0.313, 0.45},
 		dark = {0.129, 0.141, 0.164},
 		white = {0.9, 0.9, 0.9},
 		red = {0.9, 0.1, 0.1},
 		green = {0.258, 0.956, 0.56},
 		blue = normalColor(53, 176, 242, 255),
+		lightBlue = {0.9, 0.9, 1, 255},
+		gold = normalColor(238, 220, 140, 255)
 	}
 
 	--Löve setup
@@ -58,7 +60,14 @@ function love.load()
 			title = GAME_NAME.." ["..GAME_VERSION.." "..GAME_STAGE.."]",
 			vsync = true,
 			fullscreen = false,
-			resizable = false
+			resizable = false,
+			hudX = 12,
+			hudY = 12
+		},
+		light = {
+			enabled = true,
+			ambientColor = {0.4, 0.4, 0.4, 1},
+			lightSizeMultiplier = 1
 		},
 		dev = {
 			debugMode = true,
@@ -80,7 +89,7 @@ function love.load()
 
 	--Settings and loading state.
 	state:setState("menu")
-	state:load()
+	state:load({level = "data/map/level2.lua"})
 end
 
 function applySettings()
@@ -98,13 +107,50 @@ end
 
 function resize()
 	TILE_SIZE = math.floor( settings.screen.height * 0.07)
+	light:load()
 
 	FONT = {
-		DEBUG = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.02)),
-		small = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.02)),
-		medium = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.04)),
-		large = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.06)),
-		huge = love.graphics.newFont("data/font/Pixellari.ttf", math.floor((settings.screen.width) * 0.09)),
+		DEBUG = love.graphics.newFont("data/font/cubecavern.ttf", math.floor((settings.screen.width) * 0.02)),
+		small = love.graphics.newFont("data/font/cubecavern.ttf", math.floor((settings.screen.width) * 0.02)),
+		medium = love.graphics.newFont("data/font/cubecavern.ttf", math.floor((settings.screen.width) * 0.04)),
+		large = love.graphics.newFont("data/font/cubecavern.ttf", math.floor((settings.screen.width) * 0.06)),
+		huge = love.graphics.newFont("data/font/cubecavern.ttf", math.floor((settings.screen.width) * 0.09)),
+		hud = love.graphics.newFont("data/font/FreePixel.ttf", math.floor((settings.screen.width) * 0.035))
+	}
+
+	---GUI Defaults
+	buttonData = {
+		width = math.floor(settings.screen.width * 0.3),
+		height = math.floor(settings.screen.height * 0.1),
+		font = FONT.large,
+		interactive = true,
+		color = COLOR.dark
+	}
+
+	labelData = {
+		font = FONT.large,
+		color = COLOR.white,
+		maxWidth = settings.screen.width,
+		interactive = false
+	}
+
+	checkBoxData = {
+		font = FONT.medium,
+		color = COLOR.dark,
+		height = math.floor(settings.screen.height * 0.07),
+		interactive = true,
+		checked = false
+	}
+
+	listboxData = {
+		font = FONT.medium,
+		color = COLOR.dark,
+		width = math.floor(settings.screen.width * 0.4),
+		height = math.floor(settings.screen.height * 0.3),
+		items = {},
+		itemHeight = FONT.medium:getAscent() - FONT.medium:getDescent(),
+		highlight = 0,
+		scroll = 0
 	}
 end
 
@@ -113,7 +159,7 @@ function sprint(t)
 end
 
 function love.update(dt)
-	--dt = dt * 0.1
+	--dt = dt * 0.5
 	camera:update(dt)
 	timer:update(dt)
 	state:update(dt)
@@ -190,6 +236,35 @@ function requireFolder(path)
 	end
 end
 
+function loadImages(path)
+	if not love.filesystem.getInfo(path) then
+		error("'"..path.."' doesn't exist.")
+	else
+		local t = {}
+		for i,v in ipairs(love.filesystem.getDirectoryItems(path)) do
+			if isFileType(v, "png") then
+				local n = string.gsub(v, ".png", "")
+				local _atlas, _quads = tile.loadAtlas(path.."/"..v, ASSET_SIZE, ASSET_SIZE, 2)
+				t[n] = {atlas = _atlas, quads = _quads}
+			end
+		end
+		return t
+	end
+end
+
+function requireFolder(path)
+	if not love.filesystem.getInfo(path) then
+		error("'"..path.."' doesn't exist.")
+	else
+		for i,v in ipairs(love.filesystem.getDirectoryItems(path)) do
+			if isFileType(v, "lua") then
+				local n = string.gsub(v, ".lua", "")
+				_G[n] = require(path.."/"..n)
+			end
+		end
+	end
+end
+
 function mergeTable(t1, t2)
 	for k,v in pairs(t2) do
 		if not t1[k] then
@@ -201,6 +276,12 @@ end
 
 function isLuaFile(file)
 	if string.match(file, "%.lua") then
+		return true
+	else return false end
+end
+
+function isFileType(file, extension)
+	if string.match(file, "%."..extension) then
 		return true
 	else return false end
 end

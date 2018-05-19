@@ -49,7 +49,7 @@ function teleportPortal:draw()
 	if self.endLevel then
 		love.graphics.setColor(COLOR.green)
 	end
-	love.graphics.draw(ATLAS, QUADS[17], self.x, self.y - (ASSET_SIZE * (math.sin(self.t))) - math.floor(TILE_SIZE / 2), 0, TILE_SIZE / ASSET_SIZE, (TILE_SIZE / ASSET_SIZE) + (math.sin(self.t)))
+	love.graphics.draw(ATLAS, QUADS[33], self.x, self.y - (ASSET_SIZE * (math.sin(self.t))) - math.floor(TILE_SIZE / 2), 0, TILE_SIZE / ASSET_SIZE, (TILE_SIZE / ASSET_SIZE) + (math.sin(self.t)))
 end
 
 function teleportPortal:handleCollision(collision)
