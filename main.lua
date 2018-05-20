@@ -89,7 +89,7 @@ function love.load()
 	
 
 	--Settings and loading state.
-	state:setState("game")
+	state:setState("menu")
 	state:load({level = "data/map/level4.lua"})
 end
 
