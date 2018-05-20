@@ -22,10 +22,10 @@ function ripple:update(dt)
 	for i,v in ipairs(self.spawned) do
 		v.cRadius = v.cRadius + (v.radius - v.cRadius) * v.time * dt
 		v.alpha = v.alpha + (0 - v.alpha) * v.time * dt
-		v.light.brightness = v.alpha
+		if v.light then v.light.brightness = v.alpha end
 
 		if v.alpha < 0.01 then
-			v.light.remove = true
+			if v.light then v.light.remove = true end
 			table.remove(self.spawned, i)
 		end
 	end

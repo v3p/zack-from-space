@@ -83,6 +83,10 @@ function camera:getMouse()
 	return love.mouse.getX() + self.x, love.mouse.getY() + self.y
 end
 
+function camera:inView(x, y, width, height)
+	return fmath.rect(x, y, width, height, self.x, self.y, settings.screen.width, settings.screen.height)
+end
+
 function camera:getScreen(x, y)
 	return x - self.x, y - self.y
 end

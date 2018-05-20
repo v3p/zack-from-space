@@ -49,7 +49,7 @@ function game:reset()
 			if v.endLevel then
 				color = COLOR.green
 			end
-			light:new(v.x, v.y, TILE_SIZE * 8, color, v, TILE_SIZE / 2, TILE_SIZE / 2)
+			v.light = light:new(v.x, v.y, TILE_SIZE * 8, color, v, TILE_SIZE / 2, TILE_SIZE / 2)
 		end
 	end
 
@@ -60,10 +60,11 @@ function game:reset()
 			local t = self.map.layer["tile"][y][x]
 			if t then
 				if t.tile == 35 then
-					--(x, y, radius, color, follow, followOffsetX, followOffsetY, flicker)
+					--Ceiling light
 					light:new(t.x, t.y, TILE_SIZE * 16, COLOR.white, t, TILE_SIZE / 2, TILE_SIZE / 2)
-				elseif t.tile == 36 then
-					light:new(t.x, t.y, TILE_SIZE * 8, COLOR.gold, t, TILE_SIZE / 2, TILE_SIZE / 2)
+				elseif t.tile == 12 or t.tile == 13 or t.tile == 14 or t.tile == 15 then
+					--Arrows
+					light:new(t.x, t.y, TILE_SIZE * 8, COLOR.green, t, TILE_SIZE / 2, TILE_SIZE / 2)
 				end
 			end
 		end
@@ -242,10 +243,14 @@ end
 function game:drawObject()
 	for i,v in ipairs(self.map.object) do
 		if v.shape == "text" then
-			local color = v.properties.color or "white"
-			love.graphics.setFont(FONT[v.properties.font])
-			love.graphics.setColor(COLOR[color])
-			love.graphics.print(v.text, v.x, v.y)
+			local width = FONT[v.properties.font]:getWidth(v.text)
+			local height = FONT[v.properties.font]:getAscent() - FONT[v.properties.font]:getDescent()
+			if camera:inView(v.x, v.y, width, height) then
+				local color = v.properties.color or "white"
+				love.graphics.setFont(FONT[v.properties.font])
+				love.graphics.setColor(COLOR[color])
+				love.graphics.print(v.text, v.x, v.y)
+			end
 		end
 	end
 end

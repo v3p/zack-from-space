@@ -12,10 +12,10 @@ function love.load()
 		white = {0.9, 0.9, 0.9},
 		grey = {0.6, 0.6, 0.6},
 		red = {0.9, 0.1, 0.1},
-		green = {0.258, 0.956, 0.56},
+		green = normalColor(91, 214, 166, 255),
 		blue = normalColor(53, 176, 242, 255),
 		lightBlue = {0.9, 0.9, 1, 255},
-		gold = normalColor(238, 220, 140, 255)
+		gold = normalColor(243, 221, 122, 255)
 	}
 
 	--Löve setup
@@ -89,8 +89,8 @@ function love.load()
 	
 
 	--Settings and loading state.
-	state:setState("menu")
-	state:load({level = "data/map/level2.lua"})
+	state:setState("game")
+	state:load({level = "data/map/level4.lua"})
 end
 
 function applySettings()

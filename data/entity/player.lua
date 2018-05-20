@@ -273,6 +273,18 @@ function player:handleCollision(collision)
 						collision.other.cooldownTick = collision.other.cooldown
 					end
 				end
+			elseif collision.other.type == "coin" then
+				if not collision.other.collected then
+					collision.other.collected = true
+
+					--collision.other.flags.gravity = true
+					--collision.other.yVel = -((settings.screen.height * TILE_SIZE) * 0.025)
+					collision.other.targetAlpha = 0
+
+					ripple:new(collision.other.x + (TILE_SIZE / 1.4), collision.other.y + (TILE_SIZE / 1.8), 5, TILE_SIZE * 1.5, COLOR.gold)
+
+					state:getState():collect(collision.other.type)
+				end
 			end
 			--[[
 		if not self.teleported then

@@ -83,11 +83,11 @@ function menu:loadOptions()
 	d.width = d.height + d.font:getWidth(d.text)
 	self.fullscreen = gui:new("data/class/gui/checkBox.lua", d)
 
-	--vsync
-	local data = {text = "VSYNC", checked = settings.screen.vsync, x = math.floor(settings.screen.width * 0.5), y = math.floor(settings.screen.height * 0.6)}
+	--light
+	local data = {text = "LIGHTS", checked = settings.light.enabled, x = math.floor(settings.screen.width * 0.5), y = math.floor(settings.screen.height * 0.6)}
 	local d = mergeTable(data, checkBoxData)
 	d.width = d.height + d.font:getWidth(d.text)
-	self.vsync = gui:new("data/class/gui/checkBox.lua", d)
+	self.light = gui:new("data/class/gui/checkBox.lua", d)
 
 	--Controllers Title
 	local data = {font = FONT.small, text = "CONTROLS", x = math.floor(settings.screen.width * 0.01), y = math.floor(settings.screen.height * 0.16), alignment = "left"}
@@ -212,7 +212,7 @@ function menu.buttonPress(button)
 		settings.screen.width = RESOLUTIONS[settings.screen.resolution].width
 		settings.screen.height = RESOLUTIONS[settings.screen.resolution].height
 		settings.screen.fullscreen = menu.fullscreen.data.checked
-		settings.screen.vsync = menu.vsync.data.checked
+		settings.light.enabled = menu.light.data.checked
 
 		--Fixing for fullscreen
 		if settings.screen.fullscreen then

@@ -59,16 +59,20 @@ end
 
 
 function coin:handleCollision(collision)
-	if not self.collected then
+	--[[
+	if collision then
+		if collision.type.other == "coin" then return end
+		if not self.collected then
+			self.flags.gravity = true
+			self.yVel = -((settings.screen.height * TILE_SIZE) * 0.025)
+			self.targetAlpha = 0
 
-		self.flags.gravity = true
-		self.yVel = -((settings.screen.height * TILE_SIZE) * 0.025)
-		self.targetAlpha = 0
+			state:getState():collect(self.type)
 
-		state:getState():collect(self.type)
-
-		self.collected = true
+			self.collected = true
+		end
 	end
+	]]
 end
 
 function coin.filter(item, other)

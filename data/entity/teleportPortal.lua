@@ -41,6 +41,8 @@ function teleportPortal:update(dt)
 		end
 	end
 
+	if self.light then self.light.brightness = 1 + (math.sin(self.t)) end
+
 end
 
 function teleportPortal:draw()
