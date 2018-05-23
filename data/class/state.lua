@@ -1,3 +1,5 @@
+--A simple state handler. Loads, sets, calls calbacks etc. for states.
+
 local state = {
 	state = {},
 	currentState = false

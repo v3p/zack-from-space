@@ -8,14 +8,17 @@ function light:load()
 	self.texture = self:createTexture(TILE_SIZE * 4, math.floor(TILE_SIZE * 2))
 end
 
+-- *Only x and y are required, Rest is optional.
 function light:new(x, y, radius, color, follow, followOffsetX, followOffsetY, flicker)
 	if settings.light.enabled then
+		--Defaults
 		radius = radius or self.radius
 		color = color or {1, 1, 1, 1}
 		follow = follow or false
 		followOffsetX = followOffsetX or 0
 		followOffsetY = followOffsetY or 0
 		flicker = flicker or false
+
 		self.array[#self.array + 1] = {
 			x = x,
 			y = y,
@@ -86,7 +89,7 @@ end
 
 function light:draw()
 	if settings.light.enabled then
-		--if camera:isMoving() then
+		--if camera:isMoving() then *Only updates lights when camera moves.
 			light:updateMap()
 		--end
 
@@ -104,8 +107,6 @@ function light:createTexture(radius, segments)
 	local oldCanvas = love.graphics.getCanvas()
 
 	love.graphics.setCanvas(texture)
-	--love.graphics.setColor(0, 0, 0, 1)
-	--love.graphics.circle("fill", 0, 0, radius * 2, radius * 2)
 	for i=1, segments do
 		love.graphics.setColor(1, 1, 1,  (1 / (segments / 2) ) )
  		love.graphics.circle("fill", radius, radius, (radius / segments) * i )

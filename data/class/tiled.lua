@@ -12,6 +12,7 @@ function tiled.loadMap(path)
 		name = name,
 		width = raw.width,
 		height = raw.height,
+		properties = raw.properties,
 		layer = {},
 		object = {}
 	}

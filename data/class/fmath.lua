@@ -1,3 +1,5 @@
+--Various vaguely useful math functions
+
 local fmath = {}
 
 function fmath.normal(val, min, max)

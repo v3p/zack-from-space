@@ -1,3 +1,5 @@
+--The gigantic coin entity.
+
 local coin = {}
 
 function coin:load(data)
@@ -25,10 +27,6 @@ function coin:load(data)
 	self.alpha = 1
 	self.targetAlpha = 1
 
-	self.t = (math.pi * 2) * math.random()
-	self.yOffset = TILE_SIZE * 0.1
-	self.wobbleSpeed = 5
-
 	self.quads = {QUADS[28], QUADS[29], QUADS[30], QUADS[31]}
 	self.animation = animation.new(self.quads, 12)
 end
@@ -41,11 +39,6 @@ function coin:update(dt)
 	if self.alpha < 0.001 then
 		self.remove = true
 		if self.light then self.light.remove = true end
-	end
-
-	self.t = self.t + self.wobbleSpeed * dt
-	if self.t > math.pi * 2 then
-		self.t = 0
 	end
 
 	self.animation:update(dt)

@@ -1,7 +1,8 @@
+--A minimal GUI class
+
 local gui = {
 	array = {} 
 }
-
 
 function gui:new(path, data)
 	local b = love.filesystem.load(path)()
@@ -24,7 +25,7 @@ function gui:update(dt)
 
 		if v.data.interactive then
 			v.mouseOver = false
-			if pointInRect(mx, my, v.data.x, v.data.y, v.data.width, v.data.height) then
+			if fmath.pointInRect(mx, my, v.data.x, v.data.y, v.data.width, v.data.height) then
 				v.mouseOver = true
 			end
 		end

@@ -6,8 +6,6 @@ function physics:load()
 	self.gravity = (settings.screen.height) * 4.3
 	self.friction = 10
 	self.maxVelocity = (settings.screen.height) * 10
-
-	self.str = ""
 end
 
 function physics:clearWorld()
@@ -50,19 +48,7 @@ function physics:renderWorld()
 			love.graphics.rectangle("line", x, y, w, h)
 		end
 	end
-	--love.graphics.print(self.str, state:getState().player.x, state:getState().player.y - 15)
 end
-
---[[
-	for y=1, self.map.height do
-		for x=1, self.map.width do
-			local t = self.map.layer["tile"][y][x]
-			if t then
-				love.graphics.draw(ATLAS, QUADS[t.tile], (x - 1) * TILE_SIZE, (y - 1) * TILE_SIZE, 0, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE)
-			end
-		end
-	end
-]]
 
 function physics:addObject(object, offsetX, offsetY)
 	offsetX = offsetX or 0

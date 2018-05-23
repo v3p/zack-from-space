@@ -1,4 +1,5 @@
 function love.load()
+	--Used for debug
 	str = ""
 
 	--Couple globals
@@ -6,6 +7,7 @@ function love.load()
 	GAME_STAGE = "alpha"
 	GAME_NAME = "Zack from space"
 	ASSET_SIZE = 16
+	CURRENT_LEVEL = 1
 	COLOR = {
 		sky = {0, 0, 0},--{0.223, 0.313, 0.45},
 		dark = {0.129, 0.141, 0.164},
@@ -25,6 +27,7 @@ function love.load()
 	love.graphics.setLineStyle("rough")
 
 	--Loading files (Some files are loaded after the window is created.)
+	require("data/class/util")--Needs to be loaded seperatly as it contains the "requireFolder" function.
 	requireFolder("data/class")
 	state:loadStates("data/state")
 	entity:loadEntities("data/entity")
@@ -32,7 +35,7 @@ function love.load()
 	--Creating a list of levels
 	LEVELS = {}
 	for i,v in ipairs(love.filesystem.getDirectoryItems("data/map")) do
-		if isLuaFile(v) then
+		if isFileType(v, "lua") then
 			LEVELS[#LEVELS + 1] = string.gsub(v, ".lua", "")
 		end
 	end
@@ -41,6 +44,7 @@ function love.load()
 	CONTROLLERS = {
 		"Keyboard"
 	}
+
 	JOYSTICKS = love.joystick.getJoysticks()
 	for i,v in ipairs(JOYSTICKS) do
 		CONTROLLERS[#CONTROLLERS + 1] = v:getName()
@@ -89,8 +93,8 @@ function love.load()
 	
 
 	--Settings and loading state.
-	state:setState("menu")
-	state:load({level = "data/map/level4.lua"})
+	state:setState("game")
+	state:load({special = true, level = "data/map/level6.lua"})
 end
 
 function applySettings()
@@ -125,7 +129,7 @@ function resize()
 		height = math.floor(settings.screen.height * 0.1),
 		font = FONT.large,
 		interactive = true,
-		color = COLOR.dark
+		color = COLOR.grey
 	}
 
 	labelData = {
@@ -221,95 +225,6 @@ end
 
 function love.quit()
 	data:save("settings.lua", settings)
-end
-
---UTILITY FUNCTIONS
-function requireFolder(path)
-	if not love.filesystem.getInfo(path) then
-		error("'"..path.."' doesn't exist.")
-	else
-		for i,v in ipairs(love.filesystem.getDirectoryItems(path)) do
-			if isLuaFile(v) then
-				local n = string.gsub(v, ".lua", "")
-				_G[n] = require(path.."/"..n)
-			end
-		end
-	end
-end
-
-function loadImages(path)
-	if not love.filesystem.getInfo(path) then
-		error("'"..path.."' doesn't exist.")
-	else
-		local t = {}
-		for i,v in ipairs(love.filesystem.getDirectoryItems(path)) do
-			if isFileType(v, "png") then
-				local n = string.gsub(v, ".png", "")
-				local _atlas, _quads = tile.loadAtlas(path.."/"..v, ASSET_SIZE, ASSET_SIZE, 2)
-				t[n] = {atlas = _atlas, quads = _quads}
-			end
-		end
-		return t
-	end
-end
-
-function requireFolder(path)
-	if not love.filesystem.getInfo(path) then
-		error("'"..path.."' doesn't exist.")
-	else
-		for i,v in ipairs(love.filesystem.getDirectoryItems(path)) do
-			if isFileType(v, "lua") then
-				local n = string.gsub(v, ".lua", "")
-				_G[n] = require(path.."/"..n)
-			end
-		end
-	end
-end
-
-function mergeTable(t1, t2)
-	for k,v in pairs(t2) do
-		if not t1[k] then
-			t1[k] = v
-		end
-	end
-	return t1
-end
-
-function isLuaFile(file)
-	if string.match(file, "%.lua") then
-		return true
-	else return false end
-end
-
-function isFileType(file, extension)
-	if string.match(file, "%."..extension) then
-		return true
-	else return false end
-end
-
-function openSaveDirectory()
-	love.system.openURL("file://"..love.filesystem.getSaveDirectory())
-end
-
-function pointInRect(px, py, rx, ry, rw, rh)
-	if px > rx and px < rx + rw and py > ry and py < ry + rh then
-		return true
-	else return false end
-end
-
-function hsl(h, s, l, a)
-	if s<=0 then return l,l,l,a end
-	h, s, l = h/256*6, s/255, l/255
-	local c = (1-math.abs(2*l-1))*s
-	local x = (1-math.abs(h%2-1))*c
-	local m,r,g,b = (l-.5*c), 0,0,0
-	if h < 1     then r,g,b = c,x,0
-	elseif h < 2 then r,g,b = x,c,0
-	elseif h < 3 then r,g,b = 0,c,x
-	elseif h < 4 then r,g,b = 0,x,c
-	elseif h < 5 then r,g,b = x,0,c
-	else              r,g,b = c,0,x
-	end return (r+m),(g+m),(b+m),a
 end
 
 function drawDebug()

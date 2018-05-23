@@ -1,3 +1,4 @@
+--Handles loading a sprite atlas, Could be intergrated into 
 local tile = {}
 
 function tile.loadAtlas(path, tileWidth, tileHeight, padding)

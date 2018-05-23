@@ -1,3 +1,6 @@
+--Screen effects.
+--ripple.lua should at some point be intergrated into this.
+
 local screenEffect = {
 	_flash = {
 		time = 16,

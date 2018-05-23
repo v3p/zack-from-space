@@ -1,3 +1,7 @@
+--The player entity
+--Currently has a "dead" boolean that tells it if he's a ghost or not.
+--The ghost should become it's own entity at some point.
+
 local player = {}
 
 function player:load(data)
@@ -52,7 +56,9 @@ function player:load(data)
 		standRight = {QUADS[24], QUADS[25]},
 		standLeft = {QUADS[26], QUADS[27]},
 		fallRight = {QUADS[17]},
-		fallLeft = {QUADS[21]}
+		fallLeft = {QUADS[21]},
+		ghostRight = QUADS[38],
+		ghostLeft = QUADS[39]
 	}
 
 	self.flags = {
@@ -61,6 +67,7 @@ function player:load(data)
 		friction = true
 	}
 
+	--Controls the opacity for the player. Used when teleporting.
 	self.alpha = 1
 	self.targetAlpha = 1
 
@@ -72,9 +79,26 @@ function player:load(data)
 		fallRight = animation.new(self.quads.fallRight, 1),
 		fallLeft = animation.new(self.quads.fallLeft, 1)
 	}
+
+	--Ghost stuff
+	self.t = 0
+	self.dead = false
+	self.deadShader = love.graphics.newShader([[
+		vec4 effect( vec4 color, Image tex, vec2 tc, vec2 sc )
+		{	
+			vec4 c = Texel(tex, tc);
+			c.rgb = color.rgb + 1;
+			c.a = c.a - 0.6;
+			return Texel(tex, tc) * c;
+		}
+		]])
 end
 
 function player:update(dt)
+	self.t = self.t + dt
+	if self.t > math.pi * 2 then self.t = 0 end
+
+	--Allows the player to jump mid air if he touched a wall recently
 	if self.jumpTick > 0 then
 		self.jumpTick = self.jumpTick - dt
 		if self.jumpTick <= 0 then
@@ -83,6 +107,8 @@ function player:update(dt)
 	end
 
 	self.alpha = self.alpha + (self.targetAlpha - self.alpha) * 16 * dt
+
+	--Animations
 	if self.state == "idle" then
 		if self.runDirection == "right" then
 			self.animation.standRight:start()
@@ -120,7 +146,6 @@ end
 
 function player:draw()
 	love.graphics.setColor(1, 1, 1, self.alpha)
-	--Flipping the sprite if needed.
 	local anim = ""
 	if self.state == "runLeft" then
 		anim = "runLeft"
@@ -139,14 +164,28 @@ function player:draw()
 			anim = "fallRight"
 		end
 	end
-	self.animation[anim]:draw(self.x + (TILE_SIZE / 4.4), self.y, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
+
+	if self.dead then
+		local q = self.quads.ghostRight
+		if self.runDirection == "left" then
+			q = self.quads.ghostLeft
+		end
+		local bm = love.graphics.getBlendMode()
+		love.graphics.setBlendMode("add")
+		love.graphics.setColor(0.5, 0.8, 1, 1)
+		love.graphics.draw(ATLAS, q, self.x + (TILE_SIZE / 4.4), self.y - (TILE_SIZE / 6) * (1 + math.sin(self.t * 2)), 0, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
+		love.graphics.setBlendMode(bm)
+	else
+		self.animation[anim]:draw(self.x + (TILE_SIZE / 4.4), self.y, TILE_SIZE / ASSET_SIZE, TILE_SIZE / ASSET_SIZE, ASSET_SIZE / 2, 0)
+	end
 end
 
 function player:teleport(x, y, portal)
 	local c = "local x = "..x.." local y = "..y
 	local code = c..[[
 	local self = state:getState().player
-	ripple:new(x + (self.width / 2), y + (self.height / 2), 5, TILE_SIZE * 1.5, COLOR.blue)
+	local d = fmath.distance(x, y, self.x, self.y)
+	ripple:new(x + (self.width / 2), y + (self.height / 2), 5, TILE_SIZE * 1.5, COLOR.blue, true)
 	portal = portal or false
 	self.x = x
 	self.y = y
@@ -154,8 +193,12 @@ function player:teleport(x, y, portal)
 	self.canMove = true
 	self.xVel = 0
 	self.yVel = 0
-	physics:updateObject(self, self.x, self.y)]]
-	ripple:new(self.x + self.width / 2, self.y + self.height / 2, 5, TILE_SIZE * 1.5, COLOR.blue)
+	physics:updateObject(self, self.x, self.y)
+	if d > math.min(settings.screen.width, settings.screen.height) then
+		camera:load(self.x + (self.width / 2), self.y + (TILE_SIZE / 2) )
+	end
+	]]
+	ripple:new(self.x + self.width / 2, self.y + self.height / 2, 5, TILE_SIZE * 1.5, COLOR.blue, true)
 	self.targetAlpha = 0
 	self.canMove = false
 	timer:call(code, 0.2)
@@ -198,33 +241,30 @@ function player:move(direction, dt)
 				self.xVel = -self.moveSpeed
 			end
 		else
-				self.runDirection = "right"
+			self.runDirection = "right"
 
-				local acceleration = self.acceleration
-				if self.xVel < 0 then
-					acceleration = self.acceleration * 2
-				end
+			local acceleration = self.acceleration
+			if self.xVel < 0 then
+				acceleration = self.acceleration * 2
+			end
 
-				self.xVel = self.xVel + self.acceleration * dt
-				if self.xVel > self.moveSpeed then
-					self.xVel = self.moveSpeed
-				end
+			self.xVel = self.xVel + self.acceleration * dt
+			if self.xVel > self.moveSpeed then
+				self.xVel = self.moveSpeed
+			end
+
 			end
 		end
 end
 
-function player:stop()
-	self.xVel = 0
-end
-
 --Collision
-
 function player:handleCollision(collision)
 	local touch = false
 	if collision then
 		if collision.type == "slide" then
 			if self.ability.wallJumpCount < self.ability.wallJumpLimit then self.canJump = true end
 
+			--Ground collision
 			if collision.normal.y == -1 then
 				self.canJump = true
 				self.touched = false
@@ -240,7 +280,7 @@ function player:handleCollision(collision)
 				self.canJump = false
 			end
 
-			--Wall jump
+			--Wall Collision
 			if collision.normal.x ~= 0 then
 				self.isWallJump = true
 				self.touched = false
@@ -261,38 +301,44 @@ function player:handleCollision(collision)
 				end
 			end
 		elseif collision.type == "cross" then
+			--PORTALS
 			if collision.other.type == "teleportPortal" then
 				if not collision.other.teleported then
+					--END LEVEL
 					if collision.other.endLevel then
-						state:setState("menu")
-						state:load({screen = "start"})
-						screenEffect:flash()
+						if collision.other.action then
+							if collision.other.action == "repeatLevel" then
+								state:getState():repeatLevel()
+							elseif collision.other.action == "nextLevel" then
+								state:getState():nextLevel()
+							elseif collision.other.action == "menu" then
+								state:setState("menu")
+								state:load()
+								screenEffect:flash()
+							end
+						else
+							--GAME WIN
+							state:setState("game")
+							state:load({special = true, gameOverLevel = true, level = "data/map/special/gamewin.lua"})
+							screenEffect:flash()
+						end
 					else
+						--TELEPORT
 						self:teleport(collision.other.destinationX, collision.other.destinationY, collision.other)
 						collision.other.teleported = true
 						collision.other.cooldownTick = collision.other.cooldown
 					end
 				end
+			--COINS
 			elseif collision.other.type == "coin" then
 				if not collision.other.collected then
 					collision.other.collected = true
-
-					--collision.other.flags.gravity = true
-					--collision.other.yVel = -((settings.screen.height * TILE_SIZE) * 0.025)
 					collision.other.targetAlpha = 0
 
 					ripple:new(collision.other.x + (TILE_SIZE / 1.4), collision.other.y + (TILE_SIZE / 1.8), 5, TILE_SIZE * 1.5, COLOR.gold)
-
 					state:getState():collect(collision.other.type)
 				end
 			end
-			--[[
-		if not self.teleported then
-			state:getState().player:teleport(self.destinationX, self.destinationY, self)
-			self.teleported = true
-			self.cooldownTick = self.cooldown
-		end
-			]]
 		end
 	else
 		self.state = "falling"

@@ -1,12 +1,16 @@
+--Creates a little ripple effect used when teleporting, picking up coins etc.
+--Should be intergrated into "screenEffect.lua" at some point.
 local ripple = {
 	spawned = {}
 }
 
-function ripple:new(x, y, time, radius, color)
+function ripple:new(x, y, time, radius, color, flash)
 	time = time or 5
 	radius = radius or TILE_SIZE * 2
 	color = color or {1, 1, 1}
-	self.spawned[#self.spawned + 1] = {
+	local sx, sy = camera:getScreen(x, y)
+	flash = flash or false
+	local r = {
 		x = x,
 		y = y,
 		time = time,
@@ -14,8 +18,13 @@ function ripple:new(x, y, time, radius, color)
 		cRadius = 0,
 		alpha = 1,
 		color = color,
-		light = light:new(x, y, TILE_SIZE * 16, color)
+		light = false
 	}
+	if flash then
+		r.light = light:new(sx, sy, TILE_SIZE * 16, color)
+	end
+
+	self.spawned[#self.spawned + 1] = r
 end
 
 function ripple:update(dt)

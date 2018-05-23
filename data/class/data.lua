@@ -1,4 +1,5 @@
---Loads and saves data as .lua files using ser.lua
+--A layer for ser.lua for no particular reason.
+
 local data = {}
 
 function data:save(path, table)

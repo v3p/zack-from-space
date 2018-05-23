@@ -46,9 +46,9 @@ end
 function listbox:update(dt)
 	self.data.rscroll = self.data.rscroll + (self.data.scroll - self.data.rscroll) * 10 * dt
 	local x, y = love.mouse.getPosition()
-	if pointInRect(x, y, self.data.x, self.data.y, self.data.width, self.data.height) then
+	if fmath.pointInRect(x, y, self.data.x, self.data.y, self.data.width, self.data.height) then
 		for i,v in ipairs(self.data.items) do
-			if pointInRect(x, y, v.x, v.y + self.data.scroll, self.data.width, v.height) then
+			if fmath.pointInRect(x, y, v.x, v.y + self.data.scroll, self.data.width, v.height) then
 				v.highlight = true
 				self.data.highlit = i
 			else
@@ -62,7 +62,7 @@ function listbox:update(dt)
 end
 
 function listbox:mousereleased(x, y, key)
-	if pointInRect(x, y, self.data.x, self.data.y, self.data.width, self.data.height) then
+	if fmath.pointInRect(x, y, self.data.x, self.data.y, self.data.width, self.data.height) then
 		self.data.selected = self.data.highlit
 	end
 end

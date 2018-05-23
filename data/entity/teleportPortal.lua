@@ -4,6 +4,7 @@ function teleportPortal:load(data)
 	self.type = "teleportPortal"
 	self.id = data.id
 	self.endLevel = data.endLevel
+	self.action = data.action
 
 	self.x = data.x
 	self.y = data.y

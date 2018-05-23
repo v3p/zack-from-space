@@ -1,3 +1,5 @@
+--A minimal entity system that handles loading, spawning, updating and drawing entities.
+
 local entity = {
 	type = {},
 	spawned = {}
@@ -74,6 +76,7 @@ function entity:spawnMapEntities(map)
 		if v.type == "teleportPortal" then
 			local d = false
 			local endLevel = false
+			local action = false
 			for o,b in ipairs(map.object) do
 				if b.type == "teleportPoint" then
 					if v.properties.teleportPointID == b.id then
@@ -84,10 +87,15 @@ function entity:spawnMapEntities(map)
 					end
 				end
 			end
+
+			if v.properties.action then
+				action = v.properties.action
+			end
+
 			if d then
 				entity:spawn("teleportPortal", {x = v.x, y = v.y + (TILE_SIZE / 2), destinationX = d.x, destinationY = d.y})
 			else
-				entity:spawn("teleportPortal", {x = v.x, y = v.y + (TILE_SIZE / 2), endLevel = true})
+				entity:spawn("teleportPortal", {x = v.x, y = v.y + (TILE_SIZE / 2), endLevel = true, action = action})
 			end
 
 		end

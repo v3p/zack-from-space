@@ -1,3 +1,6 @@
+--A tiny little module that calls a piece of code after a time delay. 
+--Used to add a short delay between the player stepping in a portal, and getting teleported.
+
 local timer = {
 	array = {}
 }
