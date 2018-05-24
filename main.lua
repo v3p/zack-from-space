@@ -90,11 +90,12 @@ function love.load()
 
 	--Loading assets
 	ATLAS, QUADS = tile.loadAtlas("data/img/atlas.png", 16, 16, 2)
+	TITLE = love.graphics.newImage("data/img/title.png")
 	
 
 	--Settings and loading state.
-	state:setState("game")
-	state:load({special = true, level = "data/map/level6.lua"})
+	state:setState("menu")
+	state:load({special = true, level = "data/map/level7.lua"})
 end
 
 function applySettings()

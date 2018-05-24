@@ -3,6 +3,8 @@ local menu = {}
 function menu:load(data)
 	data = data or {}
 	self:generateBackground()
+	light:load()
+	self.backlight = light:new(love.mouse.getX(), love.mouse.getY(), TILE_SIZE * 16, COLOR.white)
 	if data.screen == "start" then
 		self:loadStart()
 	else
@@ -35,9 +37,9 @@ function menu:loadMain()
 	local buttonWidth = math.floor(settings.screen.width * 0.25)
 	gui:clear()
 	--Title
-	local data = {color = COLOR.green, font = FONT.huge, text = GAME_NAME, x = 0, y = math.floor(settings.screen.height * 0.1), alignment = "center"}
-	local d = mergeTable(data, labelData)
-	gui:new("data/class/gui/label.lua", d)
+	--local data = {color = COLOR.green, font = FONT.huge, text = GAME_NAME, x = 0, y = math.floor(settings.screen.height * 0.1), alignment = "center"}
+	--local d = mergeTable(data, labelData)
+	--gui:new("data/class/gui/label.lua", d)
 
 	--START
 	local data = {width = buttonWidth, click = menu.buttonPress, x = (settings.screen.width / 2) - (buttonWidth / 2), y = math.floor(settings.screen.height * 0.39), text = "START"}
@@ -216,13 +218,25 @@ function menu:goBack()
 end
 
 function menu:update(dt)
+	if self.backlight then
+		local x, y = love.mouse.getPosition()
+		self.backlight.x = x
+		self.backlight.y = y
+	end
+	light:update(dt)
 	gui:update(dt)
 end
 
 function menu:draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.draw(self.background)
+	light:draw()
 	gui:draw()
+
+	if self.screen == "main" then
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.draw(TITLE, (settings.screen.width / 2), math.floor(settings.screen.height * 0.1), 0, (TILE_SIZE / ASSET_SIZE) * 3, (TILE_SIZE / ASSET_SIZE) * 3, TITLE:getWidth() / 2) 
+	end
 end
 
 function menu:mousepressed(x, y, key)
@@ -283,6 +297,7 @@ function menu.buttonPress(button)
 			menu:generateBackground()
 
 			--menu:load()
+			menu:load()
 			menu:loadGraphics()
 		end
 	elseif button.data.text == "PLAY" then

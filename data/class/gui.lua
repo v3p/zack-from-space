@@ -1,7 +1,8 @@
 --A minimal GUI class
 
 local gui = {
-	array = {} 
+	array = {},
+	anyOver = false
 }
 
 function gui:new(path, data)
@@ -20,6 +21,7 @@ end
 
 function gui:update(dt)
 	local mx, my = love.mouse.getPosition()
+	self.anyOver = false
 	for i,v in ipairs(self.array) do
 		if type(v.update) == "function" then v:update(dt) end
 
@@ -27,9 +29,14 @@ function gui:update(dt)
 			v.mouseOver = false
 			if fmath.pointInRect(mx, my, v.data.x, v.data.y, v.data.width, v.data.height) then
 				v.mouseOver = true
+				self.anyOver = true
 			end
 		end
 	end
+end
+
+function gui:anyHover()
+	return self.anyOver
 end
 
 function gui:draw()
