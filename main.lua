@@ -74,6 +74,11 @@ function love.load()
 			ambientColor = {0.4, 0.4, 0.4, 1},
 			lightSizeMultiplier = 1
 		},
+		sound = {
+			master = 1,
+			soundFX = 1,
+			music = 0.7
+		},
 		dev = {
 			debugMode = true,
 			simpleDebug = true
@@ -157,6 +162,12 @@ function resize()
 		itemHeight = FONT.medium:getAscent() - FONT.medium:getDescent(),
 		highlight = 0,
 		scroll = 0
+	}
+
+	sliderData = {
+		color = COLOR.white,
+		width = math.floor(settings.screen.width * 0.4),
+		height = math.floor(settings.screen.height * 0.1)
 	}
 end
 

@@ -5,14 +5,16 @@ function menu:load(data)
 	self:generateBackground()
 	light:load()
 	self.backlight = light:new(love.mouse.getX(), love.mouse.getY(), TILE_SIZE * 16, COLOR.white)
-	if data.screen == "start" then
-		self:loadStart()
+	if data.screen == "levelSelect" then
+		self:loadlLevelSelect()
+		self.screen = "levelSelect"
 	else
 		self:loadMain()
+		self.screen = "main"
+
 	end
 	love.mouse.setVisible(true)
 
-	self.screen = "main"
 end
 
 function menu:generateBackground()
@@ -115,6 +117,53 @@ function menu:loadGraphics()
 	gui:new("data/class/gui/button.lua", d)
 end
 
+function menu:loadSound()
+	self.screen = "sound"
+	gui:clear()
+	--Title
+	local data = {text = "SOUND", x = 0, y = math.floor(settings.screen.height * 0.05), alignment = "center"}
+	local d = mergeTable(data, labelData)
+	gui:new("data/class/gui/label.lua", d)
+
+	--Master volume
+	local data = {font = FONT.small, text = "MASTER VOLUME", x = 0, y = math.floor(settings.screen.height * 0.16), alignment = "center"}
+	local d = mergeTable(data, labelData)
+	gui:new("data/class/gui/label.lua", d)
+
+	local data = {value = settings.sound.master, minValue = 0, maxValue = 1, x = math.floor(settings.screen.width * 0.25), y = math.floor(settings.screen.height * 0.2), width = math.floor(settings.screen.width * 0.5), height = math.floor(settings.screen.height * 0.05)}
+	local d = mergeTable(data, sliderData)
+	self.masterVolume = gui:new("data/class/gui/slider.lua", d)
+
+	--sound fx
+	local data = {font = FONT.small, text = "SOUND FX", x = 0, y = math.floor(settings.screen.height * 0.3), alignment = "center"}
+	local d = mergeTable(data, labelData)
+	gui:new("data/class/gui/label.lua", d)
+
+	local data = {value = settings.sound.soundFX, minValue = 0, maxValue = 1, x = math.floor(settings.screen.width * 0.25), y = math.floor(settings.screen.height * 0.34), width = math.floor(settings.screen.width * 0.5), height = math.floor(settings.screen.height * 0.05)}
+	local d = mergeTable(data, sliderData)
+	self.soundVolume = gui:new("data/class/gui/slider.lua", d)
+
+	--music
+	local data = {font = FONT.small, text = "MUSIC", x = 0, y = math.floor(settings.screen.height * 0.43), alignment = "center"}
+	local d = mergeTable(data, labelData)
+	gui:new("data/class/gui/label.lua", d)
+
+	local data = {value = settings.sound.music, minValue = 0, maxValue = 1, x = math.floor(settings.screen.width * 0.25), y = math.floor(settings.screen.height * 0.47), width = math.floor(settings.screen.width * 0.5), height = math.floor(settings.screen.height * 0.05)}
+	local d = mergeTable(data, sliderData)
+	self.musicVolume = gui:new("data/class/gui/slider.lua", d)
+
+
+	--APPLY
+	local data = {click = menu.buttonPress, x = (buttonData.width * 0.1), y = math.floor(settings.screen.height * 0.89), text = "APPLY"}
+	local d = mergeTable(data, buttonData)
+	gui:new("data/class/gui/button.lua", d)
+
+	--BACK
+	local data = {click = menu.buttonPress, x = settings.screen.width - (buttonData.width * 1.1), y = math.floor(settings.screen.height * 0.89), text = "BACK"}
+	local d = mergeTable(data, buttonData)
+	gui:new("data/class/gui/button.lua", d)
+end
+
 function menu:loadOptions()
 	self.screen = "options"
 	local buttonWidth = math.floor(settings.screen.width * 0.3)
@@ -160,7 +209,7 @@ function menu:loadlLevelSelect()
 	for i,v in ipairs(LEVELS) do
 		items[i] = {name = v, value = i}
 	end
-	local data = {selected = 0, items = items, x = math.floor(settings.screen.width * 0.1), y = math.floor(settings.screen.height * 0.15), width = math.floor(settings.screen.width * 0.8), height = math.floor(settings.screen.height * 0.6) }
+	local data = {selected = 1, items = items, x = math.floor(settings.screen.width * 0.1), y = math.floor(settings.screen.height * 0.15), width = math.floor(settings.screen.width * 0.8), height = math.floor(settings.screen.height * 0.6) }
 	local d = mergeTable(data, listboxData)
 	self.level = gui:new("data/class/gui/listbox.lua", d)
 
@@ -273,6 +322,8 @@ function menu.buttonPress(button)
 		love.event.push("quit")
 	elseif button.data.text == "GRAPHICS" then
 		menu:loadGraphics()
+	elseif button.data.text == "SOUND" then
+		menu:loadSound()
 	elseif button.data.text == "BACK" then
 		menu:goBack()
 	elseif button.data.text == "APPLY" then
@@ -299,6 +350,10 @@ function menu.buttonPress(button)
 			--menu:load()
 			menu:load()
 			menu:loadGraphics()
+		elseif menu.screen == "sound" then
+			settings.sound.master = menu.masterVolume.value
+			settings.sound.soundFX = menu.soundVolume.value
+			settings.sound.music = menu.musicVolume.value
 		end
 	elseif button.data.text == "PLAY" then
 		if menu.level.data.selected > 0 then

@@ -162,6 +162,18 @@ function game:die()
 	end
 end
 
+function game:endLevel()
+	if state:getState().special then
+		--TUTORIAL
+		state:setState("menu")
+		state:load({screen = "levelSelect"})
+	else
+		--Normal level
+		self:load({special = true, gameOverLevel = true, level = "data/map/special/gamewin.lua"})
+		screenEffect:flash()
+	end
+end
+
 function game:collect(item)
 	if item == "coin" then
 		self.gameCoins = self.gameCoins + 1

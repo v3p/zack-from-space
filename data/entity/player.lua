@@ -317,10 +317,8 @@ function player:handleCollision(collision)
 								screenEffect:flash()
 							end
 						else
-							--GAME WIN
-							state:setState("game")
-							state:load({special = true, gameOverLevel = true, level = "data/map/special/gamewin.lua"})
-							screenEffect:flash()
+							state:getState():endLevel()
+		
 						end
 					else
 						--TELEPORT
